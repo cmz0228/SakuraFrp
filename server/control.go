@@ -20,6 +20,7 @@ import (
 	"runtime/debug"
 	"sync"
 	"time"
+	"strings"
 
 	"github.com/fatedier/frp/g"
 	"github.com/fatedier/frp/models/config"
@@ -79,6 +80,20 @@ func (cm *ControlManager) GetById(runId string) (ctl *Control, ok bool) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
 	ctl, ok = cm.ctlsByRunId[runId]
+	return
+}
+
+func (cm *ControlManager) SearchById(runId string) (ctl *Control, ok bool) {
+	cm.mu.RLock()
+	defer cm.mu.RUnlock()
+	for k, v := range cm.ctlsByRunId {
+		if strings.IndexAny(k, runId+"-") > -1 {
+			if v == nil {
+				return
+			}
+			ctl, ok = cm.ctlsByRunId[k]
+		}
+	}
 	return
 }
 
